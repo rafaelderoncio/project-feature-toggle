@@ -1,0 +1,6 @@
+@Project.FeatureToggle.Api_HostAddress = http://localhost:5225
+
+GET {{Project.FeatureToggle.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
