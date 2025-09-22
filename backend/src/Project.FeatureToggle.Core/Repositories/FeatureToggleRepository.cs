@@ -1,78 +1,191 @@
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Project.FeatureToggle.Core.Configurations.Settings;
 using Project.FeatureToggle.Core.Models;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 
 namespace Project.FeatureToggle.Core.Repositories;
 
-public sealed class FeatureToggleRepository : IFeatureToggleRepository
+public class FeatureToggleRepository : IFeatureToggleRepository
 {
-    public FeatureToggleRepository()
-    {
-        _features = [.. Enumerable.Range(1, 100)
-            .Select(i => new FeatureToggleModel
-            {
-                Id = Guid.NewGuid(),
-                Feature = $"feature-{i}",
-                Name = $"Feature {i}",
-                Description = $"Descrição da feature {i}",
-                Tags = [.. Enumerable.Range(1, 5).Select(t => $"#{t:D2}-feature-{i}")],
-                Active = i % 2 == 0,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            })];
-    }
+    private readonly IMongoCollection<FeatureToggleModel> _collection;
 
-    private FeatureToggleModel[] _features = [];
+    public FeatureToggleRepository(IMongoDatabase database, IOptions<MongoDbSettings> settings)
+    {
+        _collection = database.GetCollection<FeatureToggleModel>(settings.Value.CollectionName);
+
+        var indexKeys = Builders<FeatureToggleModel>.IndexKeys.Ascending(x => x.Feature);
+        var indexOptions = new CreateIndexOptions { Unique = true };
+        var indexModel = new CreateIndexModel<FeatureToggleModel>(indexKeys, indexOptions);
+
+        _collection.Indexes.CreateOne(indexModel);
+        
+        // InsertSeedData().GetAwaiter().GetResult();
+    }
 
     public async Task<FeatureToggleModel> GetFeatureToggle(Guid id)
     {
-        return await Task.FromResult(_features.FirstOrDefault(x => x.Id == id));
+        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, id);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<FeatureToggleModel> GetFeatureToggle(string feature)
     {
-        return await Task.FromResult(_features.FirstOrDefault(x => x.Feature == feature));
+        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Feature, feature);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<FeatureToggleModel[]> GetFeatureToggle()
     {
-        return await Task.FromResult(this._features);
+        return await _collection.Find(Builders<FeatureToggleModel>.Filter.Empty)
+                                .ToListAsync()
+                                .ContinueWith(t => t.Result.ToArray());
     }
 
     public async Task<FeatureToggleModel> SaveFeatureToggle(FeatureToggleModel model)
     {
-        if (!_features.Any(x => x.Feature == model.Feature))
-        {
-            model.Id = Guid.NewGuid();
-            model.CreatedAt = DateTime.UtcNow;
-            model.UpdatedAt = DateTime.UtcNow;
-            _features.Append(model);
-            return await Task.FromResult(model);
-        }
+        model.Id = Guid.NewGuid();
+        model.CreatedAt = DateTime.UtcNow;
+        model.UpdatedAt = DateTime.UtcNow;
 
-        return null;
+        await _collection.InsertOneAsync(model);
+        return model;
     }
 
     public async Task<FeatureToggleModel> UpdateFeatureToggle(FeatureToggleModel model)
     {
-        if (_features.Any(x => x.Id == model.Id))
-        {
-            model.UpdatedAt = DateTime.UtcNow;
-            _features.Append(model);
-            return await Task.FromResult(model);
-        }
+        model.UpdatedAt = DateTime.UtcNow;
 
-        return null;
+        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, model.Id);
+        var options = new FindOneAndReplaceOptions<FeatureToggleModel>
+        {
+            ReturnDocument = ReturnDocument.After
+        };
+
+        return await _collection.FindOneAndReplaceAsync(filter, model, options);
     }
 
     public async Task<FeatureToggleModel> DeleteFeatureToggle(Guid id)
     {
-        var feature = _features.FirstOrDefault(x => x.Id == id);
-        if (feature is not null)
-        {
-            _features = [.. _features.ToList().Where(x => x.Id != id)];
-            return await Task.FromResult(feature);
-        }
+        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, id);
+        return await _collection.FindOneAndDeleteAsync(filter);
+    }
 
-        return null;
+    private async Task InsertSeedData()
+    {
+        if (await _collection.CountDocumentsAsync(Builders<FeatureToggleModel>.Filter.Empty) > 0)
+            await _collection.InsertManyAsync(new List<FeatureToggleModel>
+            {
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "user-registration",
+                    Name = "User Registration",
+                    Description = "Enable new user registrations.",
+                    Tags = new[] { "user", "auth" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "two-factor-auth",
+                    Name = "Two Factor Authentication",
+                    Description = "Require 2FA for login.",
+                    Tags = new[] { "security", "auth" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "dark-mode",
+                    Name = "Dark Mode",
+                    Description = "Allow users to switch between light and dark themes.",
+                    Tags = new[] { "ui", "theme" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "beta-dashboard",
+                    Name = "Beta Dashboard",
+                    Description = "Enable new dashboard layout for beta users.",
+                    Tags = new[] { "dashboard", "beta" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "notifications",
+                    Name = "Notifications",
+                    Description = "Enable in-app notifications.",
+                    Tags = new[] { "notifications", "user" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "export-csv",
+                    Name = "Export Data as CSV",
+                    Description = "Allow users to export data in CSV format.",
+                    Tags = new[] { "export", "data" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "ai-recommendations",
+                    Name = "AI Recommendations",
+                    Description = "Show AI-based recommendations to users.",
+                    Tags = new[] { "ai", "recommendations" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "payment-gateway",
+                    Name = "Payment Gateway",
+                    Description = "Enable online payments using multiple providers.",
+                    Tags = new[] { "payment", "ecommerce" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "audit-logs",
+                    Name = "Audit Logs",
+                    Description = "Track all user and system activities.",
+                    Tags = new[] { "logs", "security" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureToggleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "api-access",
+                    Name = "API Access",
+                    Description = "Allow external applications to access via API keys.",
+                    Tags = new[] { "api", "integration" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            });
     }
 }

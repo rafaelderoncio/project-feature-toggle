@@ -1,37 +1,23 @@
 using Microsoft.OpenApi.Models;
-using Project.FeatureToggle.Core.Repositories;
-using Project.FeatureToggle.Core.Repositories.Interfaces;
-using Project.FeatureToggle.Core.Services;
-using Project.FeatureToggle.Core.Services.Interfaces;
+using Project.FeatureToggle.Core.Configurations.Settings;
+using Project.FeatureToggle.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IFeatureToggleService, FeatureToggleService>();
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("Program:MongoDbSettings"))
+                .Configure<SwaggerSettings>(builder.Configuration.GetSection("Program:SwaggerSettings"));
 
-builder.Services.AddTransient<IFeatureToggleRepository, FeatureToggleRepository>();
+builder.Services.AddServices();
+
+builder.Services.AddRepositories();
 
 builder.Services.AddControllers();
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "",
-        Version = "v1",
-        Description = ""
-    });
-});
+builder.Services.AddSwagger(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseSwagger();
-
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "");
-    c.RoutePrefix = "api/swagger";
-    c.DefaultModelsExpandDepth(-1);
-});
+app.UseSwaggerConfigured();
 
 app.UseHttpsRedirection();
 
