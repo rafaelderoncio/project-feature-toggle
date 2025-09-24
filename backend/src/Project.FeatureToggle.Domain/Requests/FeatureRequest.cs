@@ -1,6 +1,6 @@
 namespace Project.FeatureToggle.Domain.Requests;
 
-public record FeatureToggleRequest
+public record FeatureRequest
 {
     public string Name { get; set; }
     public string Description { get; set; }

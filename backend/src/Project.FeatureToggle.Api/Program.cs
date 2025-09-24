@@ -5,7 +5,8 @@ using Project.FeatureToggle.Core.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("Program:MongoDbSettings"))
-                .Configure<SwaggerSettings>(builder.Configuration.GetSection("Program:SwaggerSettings"));
+                .Configure<SwaggerSettings>(builder.Configuration.GetSection("Program:SwaggerSettings"))
+                .Configure<RedisSettings>(builder.Configuration.GetSection("Program:RedisSettings"));
 
 builder.Services.AddServices();
 

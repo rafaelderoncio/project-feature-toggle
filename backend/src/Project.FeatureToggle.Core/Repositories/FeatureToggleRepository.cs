@@ -6,77 +6,119 @@ using Project.FeatureToggle.Core.Repositories.Interfaces;
 
 namespace Project.FeatureToggle.Core.Repositories;
 
-public class FeatureToggleRepository : IFeatureToggleRepository
+public sealed class FeatureRepository : IFeatureRepository
 {
-    private readonly IMongoCollection<FeatureToggleModel> _collection;
+    private readonly IMongoDatabase _database;
+    private readonly IMongoCollection<FeatureModel> _collection;
+    private readonly MongoDbSettings _settings;
 
-    public FeatureToggleRepository(IMongoDatabase database, IOptions<MongoDbSettings> settings)
+    public FeatureRepository(IMongoDatabase database, IOptions<MongoDbSettings> options)
     {
-        _collection = database.GetCollection<FeatureToggleModel>(settings.Value.CollectionName);
+        _database = database;
+        _settings = options.Value;
+        _collection = _database.GetCollection<FeatureModel>(_settings.CollectionName);
 
-        var indexKeys = Builders<FeatureToggleModel>.IndexKeys.Ascending(x => x.Feature);
+        var indexKeys = Builders<FeatureModel>.IndexKeys.Ascending(x => x.Feature);
         var indexOptions = new CreateIndexOptions { Unique = true };
-        var indexModel = new CreateIndexModel<FeatureToggleModel>(indexKeys, indexOptions);
+        var indexModel = new CreateIndexModel<FeatureModel>(indexKeys, indexOptions);
 
         _collection.Indexes.CreateOne(indexModel);
-        
+
+        // remove in production
         // InsertSeedData().GetAwaiter().GetResult();
     }
-
-    public async Task<FeatureToggleModel> GetFeatureToggle(Guid id)
+    
+    public async Task<FeatureModel> GetFeature(Guid id)
     {
-        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, id);
-        return await _collection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<FeatureModel>.Filter.Eq(x => x.Id, id);
+        var result = await _collection.Find(filter).FirstOrDefaultAsync();
+
+        return result;
     }
 
-    public async Task<FeatureToggleModel> GetFeatureToggle(string feature)
+    public async Task<FeatureModel> GetFeature(string feature)
     {
-        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Feature, feature);
-        return await _collection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<FeatureModel>.Filter.Eq(x => x.Feature, feature);
+        var result = await _collection.Find(filter).FirstOrDefaultAsync();
+
+        return result;
     }
 
-    public async Task<FeatureToggleModel[]> GetFeatureToggle()
+    public async Task<FeatureModel[]> GetFeatures()
     {
-        return await _collection.Find(Builders<FeatureToggleModel>.Filter.Empty)
-                                .ToListAsync()
-                                .ContinueWith(t => t.Result.ToArray());
+        var filter = Builders<FeatureModel>.Filter.Empty;
+        var result = await _collection.Find(filter).ToListAsync().ContinueWith(t => t.Result);
+
+        return [.. result];
     }
 
-    public async Task<FeatureToggleModel> SaveFeatureToggle(FeatureToggleModel model)
+    public async Task<FeatureModel[]> GetFeatures(bool onlyActive, int quantity, int page)
+    {
+        var filter = onlyActive ?
+            Builders<FeatureModel>.Filter.Eq(x => x.Active, true) :
+            Builders<FeatureModel>.Filter.Empty;
+
+        var result = await _collection
+            .Find(filter)
+            .Skip((page - 1) * quantity)
+            .Limit(quantity)
+            .ToListAsync();
+        
+        return [.. result];
+    }
+
+    public async Task<long> GetTotalFeatures(bool onlyActive)
+    {
+        var filter = onlyActive ?
+            Builders<FeatureModel>.Filter.Eq(x => x.Active, true) :
+            Builders<FeatureModel>.Filter.Empty;
+
+        var result = await _collection.CountDocumentsAsync(filter);
+
+        return result;
+    }
+
+    public async Task<FeatureModel> SaveFeature(FeatureModel model)
     {
         model.Id = Guid.NewGuid();
         model.CreatedAt = DateTime.UtcNow;
-        model.UpdatedAt = DateTime.UtcNow;
-
+        model.UpdatedAt = model.CreatedAt;
         await _collection.InsertOneAsync(model);
+
         return model;
     }
 
-    public async Task<FeatureToggleModel> UpdateFeatureToggle(FeatureToggleModel model)
+    public async Task<FeatureModel> UpdateFeature(FeatureModel model)
     {
-        model.UpdatedAt = DateTime.UtcNow;
+        var filter = Builders<FeatureModel>.Filter.Eq(x => x.Id, model.Id);
 
-        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, model.Id);
-        var options = new FindOneAndReplaceOptions<FeatureToggleModel>
-        {
-            ReturnDocument = ReturnDocument.After
-        };
+        var update = Builders<FeatureModel>.Update.Set(x => x.Name, model.Name)
+                                                  .Set(x => x.Description, model.Description)
+                                                  .Set(x => x.Feature, model.Feature)
+                                                  .Set(x => x.Tags, model.Tags)
+                                                  .Set(x => x.Active, model.Active)
+                                                  .Set(x => x.UpdatedAt, DateTime.UtcNow);
 
-        return await _collection.FindOneAndReplaceAsync(filter, model, options);
+        var options = new FindOneAndUpdateOptions<FeatureModel> { ReturnDocument = ReturnDocument.After };
+
+        var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
+
+        return result;
     }
 
-    public async Task<FeatureToggleModel> DeleteFeatureToggle(Guid id)
+    public async Task<FeatureModel> DeleteFeature(Guid id)
     {
-        var filter = Builders<FeatureToggleModel>.Filter.Eq(x => x.Id, id);
-        return await _collection.FindOneAndDeleteAsync(filter);
+        var filter = Builders<FeatureModel>.Filter.Eq(x => x.Id, id);
+        var result = await _collection.FindOneAndDeleteAsync(filter);
+
+        return result;
     }
 
     private async Task InsertSeedData()
     {
-        if (await _collection.CountDocumentsAsync(Builders<FeatureToggleModel>.Filter.Empty) > 0)
-            await _collection.InsertManyAsync(new List<FeatureToggleModel>
+        await _collection.InsertManyAsync(new List<FeatureModel>
             {
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "user-registration",
@@ -87,7 +129,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "two-factor-auth",
@@ -98,7 +140,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "dark-mode",
@@ -109,7 +151,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "beta-dashboard",
@@ -120,7 +162,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "notifications",
@@ -131,7 +173,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "export-csv",
@@ -142,7 +184,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "ai-recommendations",
@@ -153,7 +195,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "payment-gateway",
@@ -164,7 +206,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "audit-logs",
@@ -175,7 +217,7 @@ public class FeatureToggleRepository : IFeatureToggleRepository
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
-                new FeatureToggleModel
+                new FeatureModel
                 {
                     Id = Guid.NewGuid(),
                     Feature = "api-access",

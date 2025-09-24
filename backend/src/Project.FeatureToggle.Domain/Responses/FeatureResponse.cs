@@ -2,7 +2,7 @@ using System;
 
 namespace Project.FeatureToggle.Domain.Responses;
 
-public record FeatureToggleResponse
+public record FeatureResponse
 {
     public string Id { get; set; }
     public string Feature { get; set; }

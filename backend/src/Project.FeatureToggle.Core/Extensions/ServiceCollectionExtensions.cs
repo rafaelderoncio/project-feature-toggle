@@ -9,6 +9,7 @@ using Project.FeatureToggle.Core.Repositories;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services;
 using Project.FeatureToggle.Core.Services.Interfaces;
+using StackExchange.Redis;
 
 namespace Project.FeatureToggle.Core.Extensions;
 
@@ -17,13 +18,15 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
+        services.AddSingleton<IFeatureManagerService, FeatureManagerService>();
         services.AddSingleton<IFeatureToggleService, FeatureToggleService>();
+        services.AddSingleton<ICacheService, CacheService>();
         return services;
     }
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddTransient<IFeatureToggleRepository, FeatureToggleRepository>(sp =>
+        services.AddTransient<IFeatureRepository, FeatureRepository>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<MongoDbSettings>>();
             var settings = MongoClientSettings.FromConnectionString(options.Value.ConnectionString);
@@ -62,7 +65,7 @@ public static class ServiceCollectionExtensions
                 }
             });
         });
-        
+
         return services;
     }
 }

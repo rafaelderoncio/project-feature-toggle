@@ -3,12 +3,14 @@ using Project.FeatureToggle.Core.Models;
 
 namespace Project.FeatureToggle.Core.Repositories.Interfaces;
 
-public interface IFeatureToggleRepository
+public interface IFeatureRepository
 {
-    Task<FeatureToggleModel> GetFeatureToggle(Guid id);
-    Task<FeatureToggleModel> GetFeatureToggle(string feature);
-    Task<FeatureToggleModel[]> GetFeatureToggle();
-    Task<FeatureToggleModel> SaveFeatureToggle(FeatureToggleModel model);
-    Task<FeatureToggleModel> UpdateFeatureToggle(FeatureToggleModel model);
-    Task<FeatureToggleModel> DeleteFeatureToggle(Guid id);
+    Task<FeatureModel> GetFeature(Guid id);
+    Task<FeatureModel> GetFeature(string feature);
+    Task<FeatureModel[]> GetFeatures();
+    Task<FeatureModel[]> GetFeatures(bool onlyActive, int quantity, int page);
+    Task<long> GetTotalFeatures(bool onlyActive);
+    Task<FeatureModel> SaveFeature(FeatureModel model);
+    Task<FeatureModel> UpdateFeature(FeatureModel model);
+    Task<FeatureModel> DeleteFeature(Guid id);
 }

@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Project.FeatureToggle.Core.Models;
 
-public record FeatureToggleModel
+public record FeatureModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.String)]
