@@ -453,3 +453,7 @@ obj/
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,csharp,visualstudiocode,angular
 backend/src/Project.FeatureToggle.Api/appsettings.json
+aspnetapp.key
+backend/src/Project.FeatureToggle.Api/aspnetapp.crt
+aspnetapp.crt
+backend/src/Project.FeatureToggle.Api/appsettings.json

@@ -14,7 +14,7 @@ public abstract class RedisBaseService(RedisSettings settings)
             }
         );
 
-    public async Task<string?> GetValue()
+    public async Task<string> GetValue()
     {
         using var connection = GetConnection();
         return await GetConnection().GetDatabase().StringGetAsync("");

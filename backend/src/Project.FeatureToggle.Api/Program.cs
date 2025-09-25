@@ -1,5 +1,6 @@
 using Project.FeatureToggle.Core.Configurations.Settings;
 using Project.FeatureToggle.Core.Extensions;
+using Project.FeatureToggle.Core.Middlewares;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +21,15 @@ builder.Services.AddSwagger(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
+app.UseHttpsRedirection();
+
+app.UseHsts();
+
 app.UseSwaggerPage();
 
-app.UseHttpsRedirection().UseHsts();
+app.UseRouting();
 
 app.MapControllers();
 

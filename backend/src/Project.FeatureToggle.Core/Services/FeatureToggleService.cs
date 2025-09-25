@@ -1,25 +1,43 @@
+using Microsoft.Extensions.Logging;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services.Interfaces;
 
 namespace Project.FeatureToggle.Core.Services;
 
-public sealed class FeatureToggleService(IFeatureRepository repository, ICacheService cache) : IFeatureToggleService
+public sealed class FeatureToggleService(
+    IFeatureRepository repository,
+    ICacheService cache,
+    ILogger<IFeatureToggleService> logger) : IFeatureToggleService
 {
     public async Task<bool> GetToggle(string feature)
     {
-        var cached = await cache.GetValueAsync(feature);
+        logger.LogInformation("Starts GetToggle for feature {0}", feature);
 
-        if (!string.IsNullOrEmpty(cached))
-            return bool.Parse(cached);
+        try
+        {
+            var cached = await cache.GetValueAsync(feature);
 
-        var model = await repository.GetFeature(feature);
+            if (!string.IsNullOrEmpty(cached))
+                return bool.Parse(cached);
 
-        if (model is null)
-            return false;
+            var model = await repository.GetFeature(feature);
 
-        await cache.SetValueAsync(feature, model.Active.ToString());
+            if (model is null)
+                return false;
 
-        return model.Active;
+            await cache.SetValueAsync(feature, model.Active.ToString());
+
+            return model.Active;
+        }
+        catch (System.Exception ex)
+        {
+            logger.LogError("Error on GetToggle for feature {0}. {1}", feature, ex.Message);
+            throw;
+        }
+        finally
+        {
+            logger.LogError("Finish GetToggle for feature {0}.", feature);
+        }
     }
 
     public async Task<bool> PutToggle(string feature)
