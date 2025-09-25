@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services.Interfaces;
 using Project.FeatureToggle.Domain.Requests;
@@ -6,7 +7,11 @@ using Project.FeatureToggle.Domain.Responses;
 
 namespace Project.FeatureToggle.Core.Services;
 
-public class FeatureManagerService(IFeatureRepository repository, ICacheService cache) : IFeatureManagerService
+public class FeatureManagerService(
+    IFeatureRepository repository,
+    ICacheService cache,
+    ILogger<FeatureManagerService> logger
+    ) : IFeatureManagerService
 {
     public async Task<FeatureResponse> CreateFeature(FeatureRequest request)
     {
@@ -46,6 +51,8 @@ public class FeatureManagerService(IFeatureRepository repository, ICacheService 
 
     public async Task<FeatureResponse> GetFeature(Guid id)
     {
+        logger.LogInformation("Starts get feature {id}", id.ToString());
+
         var featureCached = await cache.GetValueAsync(id.ToString());
         if (!string.IsNullOrEmpty(featureCached))
         {

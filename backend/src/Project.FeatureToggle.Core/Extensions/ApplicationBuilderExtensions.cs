@@ -8,9 +8,10 @@ namespace Project.FeatureToggle.Core.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseSwaggerConfigured(this IApplicationBuilder app)
+    public static IApplicationBuilder UseSwaggerPage(this IApplicationBuilder app)
     {
-        var settings = app.ApplicationServices.GetRequiredService<IOptions<SwaggerSettings>>().Value;
+        var settings = app.ApplicationServices.GetRequiredService<IOptions<SwaggerSettings>>().Value
+            ?? throw new InvalidOperationException("SwaggerSettings has not configured!");
 
         if (!settings.Enable)
             return app;
