@@ -9,7 +9,6 @@ using Project.FeatureToggle.Core.Repositories;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services;
 using Project.FeatureToggle.Core.Services.Interfaces;
-using StackExchange.Redis;
 
 namespace Project.FeatureToggle.Core.Extensions;
 

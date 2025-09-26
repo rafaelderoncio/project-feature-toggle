@@ -1,5 +1,3 @@
-using System;
-
 namespace Project.FeatureToggle.Core.Services.Interfaces;
 
 public interface IFeatureToggleService

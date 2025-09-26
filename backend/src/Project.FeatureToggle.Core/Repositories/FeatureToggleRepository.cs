@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Project.FeatureToggle.Core.Configurations.Settings;
@@ -104,6 +105,22 @@ public sealed class FeatureRepository : IFeatureRepository
         var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
 
         return result;
+    }
+
+    public async Task<FeatureModel> UpdateFeature(Guid id, Expression<Func<FeatureModel, object>> field, object value)
+    {
+        var filter = Builders<FeatureModel>.Filter.Eq(x => x.Id, id);
+
+        var update = Builders<FeatureModel>.Update
+                                        .Set(field, value)
+                                        .Set(x => x.UpdatedAt, DateTime.UtcNow);
+
+        var options = new FindOneAndUpdateOptions<FeatureModel>
+        {
+            ReturnDocument = ReturnDocument.After
+        };
+
+        return await _collection.FindOneAndUpdateAsync(filter, update, options);
     }
 
     public async Task<FeatureModel> DeleteFeature(Guid id)

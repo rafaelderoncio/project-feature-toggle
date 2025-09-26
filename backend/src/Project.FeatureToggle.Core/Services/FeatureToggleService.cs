@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Project.FeatureToggle.Core.Exceptions;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services.Interfaces;
 
@@ -20,19 +21,26 @@ public sealed class FeatureToggleService(
             if (!string.IsNullOrEmpty(cached))
                 return bool.Parse(cached);
 
-            var model = await repository.GetFeature(feature);
-
-            if (model is null)
-                return false;
+            var model = await repository.GetFeature(feature) ??
+                throw new BaseException(
+                    title: "GetToggle",
+                    message: $"Feature '{feature}' not found",
+                    code: System.Net.HttpStatusCode.NotFound
+                );
 
             await cache.SetValueAsync(feature, model.Active.ToString());
 
             return model.Active;
         }
-        catch (System.Exception ex)
+        catch(BaseException) { throw; }
+        catch (Exception ex)
         {
             logger.LogError("Error on GetToggle for feature {0}. {1}", feature, ex.Message);
-            throw;
+            throw new BaseException(
+                title: "GetToggle",
+                message: $"Error on GetToggle for feature {feature}.",
+                ex: ex
+            );
         }
         finally
         {
@@ -42,17 +50,36 @@ public sealed class FeatureToggleService(
 
     public async Task<bool> PutToggle(string feature)
     {
-        var model = await repository.GetFeature(feature);
+        logger.LogInformation("Starts PutToggle for feature {0}", feature);
 
-        if (model is null)
-            return false;
+        try
+        {
+            var model = await repository.GetFeature(feature) ??
+                throw new BaseException(
+                    title: "GetToggle",
+                    message: $"Feature '{feature}' not found",
+                    code: System.Net.HttpStatusCode.NotFound
+                );
 
-        model.Active = !model.Active;
+            await repository.UpdateFeature(model.Id, x => x.Active, !model.Active);
 
-        await repository.UpdateFeature(model);
+            await cache.SetValueAsync(feature, model.Active.ToString());
 
-        await cache.SetValueAsync(feature, model.Active.ToString());
-
-        return model.Active;
+            return model.Active;
+        }
+        catch(BaseException) { throw; }
+        catch (Exception ex)
+        {
+            logger.LogError("Error on PutToggle for feature {0}. {1}", feature, ex.Message);
+            throw new BaseException(
+                title: "PutToggle",
+                message: $"Error on PutToggle for feature {feature}.",
+                ex: ex
+            );
+        }
+        finally
+        {
+            logger.LogError("Finish PutToggle for feature {0}.", feature);
+        }
     }
 }

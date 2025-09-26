@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Project.FeatureToggle.Core.Exceptions;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services.Interfaces;
 using Project.FeatureToggle.Domain.Requests;
@@ -7,7 +8,7 @@ using Project.FeatureToggle.Domain.Responses;
 
 namespace Project.FeatureToggle.Core.Services;
 
-public class FeatureManagerService(IFeatureRepository repository, ILogger<FeatureManagerService> logger) : IFeatureManagerService
+public sealed class FeatureManagerService(IFeatureRepository repository, ILogger<FeatureManagerService> logger) : IFeatureManagerService
 {
     public async Task<FeatureResponse> CreateFeature(FeatureRequest request)
     {
@@ -34,6 +35,7 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
                 Active = feature.Active
             };
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process CreateFeature");
@@ -63,6 +65,7 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
                 Active = feature.Active
             };
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process DeleteFeature");
@@ -92,6 +95,7 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
                 Active = feature.Active
             };
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process DeleteFeature");
@@ -112,16 +116,17 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
             var features = await repository.GetFeatures();
 
             return [.. features.Select(feature => new FeatureResponse
-        {
-            Id = feature.Id.ToString(),
-            Name = feature.Name,
-            Description = feature.Description,
-            Feature = feature.Feature,
-            Tags = feature.Tags,
-            Active = feature.Active
-        })];
+            {
+                Id = feature.Id.ToString(),
+                Name = feature.Name,
+                Description = feature.Description,
+                Feature = feature.Feature,
+                Tags = feature.Tags,
+                Active = feature.Active
+            })];
 
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process GetFeatures");
@@ -170,6 +175,7 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
                 NextPage = request.Page < totalPages ? request.Page + 1 : null
             };
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process DeleteFeature");
@@ -206,6 +212,7 @@ public class FeatureManagerService(IFeatureRepository repository, ILogger<Featur
                 Active = featureUpdated.Active
             };
         }
+        catch (BaseException) { throw; }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error on process UpdateFeature");

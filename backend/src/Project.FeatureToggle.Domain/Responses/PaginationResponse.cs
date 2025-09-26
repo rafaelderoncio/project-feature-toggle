@@ -1,5 +1,3 @@
-using System;
-
 namespace Project.FeatureToggle.Domain.Responses;
 
 public record PaginationResponse<T> where T : class

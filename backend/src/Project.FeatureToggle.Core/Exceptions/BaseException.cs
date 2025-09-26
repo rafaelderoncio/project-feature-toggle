@@ -1,6 +1,4 @@
-using System;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Project.FeatureToggle.Core.Configurations.Enums;
 
 namespace Project.FeatureToggle.Core.Exceptions;
