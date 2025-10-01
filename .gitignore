@@ -254,6 +254,8 @@ backend/src/Project.FeatureToggle.Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.Sw
 backend/src/Project.FeatureToggle.Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll
 backend/src/Project.FeatureToggle.Api/bin/Debug/net9.0/ZstdSharp.dll
 backend/src/Project.FeatureToggle.Api/aspnetapp.crt
-backend/src/Project.FeatureToggle.Api/appsettings.json
+appsettings*.json
+/appsettings.json
 aspnetapp.crt
 aspnetapp.key
+backend/src/Project.FeatureToggle.Api/appsettings.json

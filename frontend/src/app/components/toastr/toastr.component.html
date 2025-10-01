@@ -1,0 +1,17 @@
+<div class="toastr-container">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toastr toastr-{{toast.type}}" [class.toastr-dark]="isDarkMode()">
+      <div class="toastr-icon">
+        <i [class]="getToastIcon(toast.type)"></i>
+      </div>
+      <div class="toastr-content">
+        <div class="toastr-title">{{ toast.title }}</div>
+        <div class="toastr-message">{{ toast.message }}</div>
+      </div>
+      <button class="toastr-close" (click)="removeToast(toast.id)">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="toastr-progress" [style.animation-duration]="toast.duration + 'ms'"></div>
+    </div>
+  }
+</div>

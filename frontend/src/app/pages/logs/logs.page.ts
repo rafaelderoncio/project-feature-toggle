@@ -8,8 +8,8 @@ import { Log } from '../../models/log.model';
   selector: 'app-log-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './log.page.html',
-  styleUrl: './log.page.css'
+  templateUrl: './logs.page.html',
+  styleUrl: './logs.page.css'
 })
 export class LogPageComponent {
   logService = inject(LogService);

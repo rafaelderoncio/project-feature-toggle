@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomePageComponent } from './pages/home/home.page';
-import { LogPageComponent } from './pages/log/log.page';
+import { LogPageComponent } from './pages/logs/logs.page';
 import { SettingsPageComponent } from './pages/settings/settings.page';
 
 export const routes: Routes = [

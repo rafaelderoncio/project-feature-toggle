@@ -2,15 +2,22 @@
 
 import { Component, Inject, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
+import { ToastrComponent } from './components/toastr/toastr.component';
+
+let components = [SidebarComponent, ToastrComponent];
+let modules = [RouterOutlet, CommonModule, FormsModule]
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, FormsModule, RouterLink, RouterLinkActive],
+  imports: [
+    ... components,
+    ... modules
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

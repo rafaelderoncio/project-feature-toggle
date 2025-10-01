@@ -1,0 +1,165 @@
+.toastr-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toastr {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 15px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 400px;
+  border-left: 4px solid;
+  animation: slideInRightFromFloor 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.toastr-success {
+  border-left-color: var(--success-color);
+}
+
+.toastr-error {
+  border-left-color: var(--danger-color);
+}
+
+.toastr-warning {
+  border-left-color: var(--warning-color);
+}
+
+.toastr-info {
+  border-left-color: var(--primary-color);
+}
+
+.toastr-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toastr-success .toastr-icon {
+  color: var(--success-color);
+}
+
+.toastr-error .toastr-icon {
+  color: var(--danger-color);
+}
+
+.toastr-warning .toastr-icon {
+  color: var(--warning-color);
+}
+
+.toastr-info .toastr-icon {
+  color: var(--primary-color);
+}
+
+.toastr-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toastr-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--text-color);
+}
+
+.toastr-message {
+  font-size: 13px;
+  color: var(--gray-color);
+  line-height: 1.4;
+}
+
+.toastr-close {
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  margin: -4px -4px -4px 0;
+  border-radius: 4px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.toastr-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+}
+
+.toastr-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  animation: progressBar linear forwards;
+  opacity: 0.7;
+}
+
+.toastr-success .toastr-progress {
+  background: var(--success-color);
+}
+
+.toastr-error .toastr-progress {
+  background: var(--danger-color);
+}
+
+.toastr-warning .toastr-progress {
+  background: var(--warning-color);
+}
+
+.toastr-info .toastr-progress {
+  background: var(--primary-color);
+}
+
+@keyframes slideInRightFromFloor {
+  0% {
+    transform: translateX(100%) translateY(10px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-5%) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progressBar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .toastr-container {
+    right: 10px;
+    left: 10px;
+    bottom: 10px;
+    max-width: none;
+  }
+  
+  .toastr {
+    min-width: auto;
+    max-width: none;
+  }
+}
