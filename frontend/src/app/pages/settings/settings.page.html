@@ -1,0 +1,105 @@
+<div class="settings-grid">
+  <div class="settings-card">
+    <h3><i class="fas fa-user-cog"></i> Preferências de Usuário</h3>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Modo Escuro</div>
+          <div class="settings-desc">Alternar entre tema claro e escuro</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="darkMode()" (change)="darkMode.set(!darkMode()); onDarkModeChange()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Notificações</div>
+          <div class="settings-desc">Receber notificações de alterações</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="notifications()" (change)="notifications.set(!notifications())">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3><i class="fas fa-bell"></i> Preferências de Notificação</h3>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Email</div>
+          <div class="settings-desc">Receber notificações por email</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="emailNotifications()" (change)="emailNotifications.set(!emailNotifications())">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Push</div>
+          <div class="settings-desc">Receber notificações push</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="pushNotifications()" (change)="pushNotifications.set(!pushNotifications())">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3><i class="fas fa-shield-alt"></i> Segurança</h3>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Autenticação de Dois Fatores</div>
+          <div class="settings-desc">Aumentar a segurança da conta</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="twoFactorAuth()" (change)="twoFactorAuth.set(!twoFactorAuth())">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Log de Acesso</div>
+          <div class="settings-desc">Registrar todos os acessos à conta</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="accessLog()" (change)="accessLog.set(!accessLog())">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3><i class="fas fa-database"></i> Dados e Armazenamento</h3>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Backup Automático</div>
+          <div class="settings-desc">Fazer backup automático dos dados</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="autoBackup()" (change)="autoBackup.set(!autoBackup())">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div>
+          <div class="settings-label">Limitar Logs</div>
+          <div class="settings-desc">Manter apenas logs dos últimos 30 dias</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="logsLimit()" (change)="logsLimit.set(!logsLimit())">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

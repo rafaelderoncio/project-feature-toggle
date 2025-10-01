@@ -1,0 +1,39 @@
+<body>
+  <!-- Sidebar Navigation -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <header>
+        <h1 id="page-title">{{ pageTitle() }}</h1>
+        <div class="header-controls">
+          <div class="theme-toggle">
+            <span class="toggle-label">Modo Escuro</span>
+            <label class="toggle-switch">
+              <input type="checkbox" [checked]="darkMode()" (change)="toggleDarkMode()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="user-area" (click)="toggleUserDropdown()">
+            <div class="user-avatar">R</div>
+            <span>Rafael Silva</span>
+            <!-- <i class="fas fa-chevron-down"></i> -->
+            <div class="user-dropdown" [class.active]="userDropdownOpen()">
+              <div class="user-info">
+                <div class="user-name">Rafael Silva</div>
+                <div class="user-email">rafael@empresa.com</div>
+              </div>
+              <button class="logout-btn" (click)="logout()">
+                <!-- <i class="fa fa-right-from-bracket"></i> Sair -->
+                 Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</body>

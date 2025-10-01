@@ -1,0 +1,70 @@
+<div class="dashboard-stats">
+  <div class="stat-card active">
+    <h3>Features Ativas</h3>
+    <div class="count">{{ activeCount }}</div>
+  </div>
+  <div class="stat-card inactive">
+    <h3>Features Inativas</h3>
+    <div class="count">{{ inactiveCount }}</div>
+  </div>
+  <div class="stat-card">
+    <h3>Total de Features</h3>
+    <div class="count">{{ totalCount }}</div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" [value]="searchQuery()" (input)="onSearchChange($event)" placeholder="Buscar features...">
+  </div>
+  
+  <div class="filters">
+    <button class="filter-btn" [class.active]="currentFilter() === 'all'" (click)="setFilter('all')">Todas</button>
+    <button class="filter-btn" [class.active]="currentFilter() === 'active'" (click)="setFilter('active')">Ativas</button>
+    <button class="filter-btn" [class.active]="currentFilter() === 'inactive'" (click)="setFilter('inactive')">Inativas</button>
+  </div>
+  
+  <button class="add-btn" (click)="openAddModal()">
+    <i class="fas fa-plus"></i> Nova Feature
+  </button>
+</div>
+
+<div class="features-grid">
+  @for (feature of filteredFeatures; track feature.id) {
+    <div class="feature-card" [class.active]="feature.enabled" [class.inactive]="!feature.enabled">
+      <div class="feature-header">
+        <div class="feature-name">{{ feature.name }}</div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="feature.enabled" (change)="toggleFeature(feature.id)">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="feature-description">{{ feature.description }}</div>
+      <div class="feature-status" [class.status-active]="feature.enabled" [class.status-inactive]="!feature.enabled">
+        {{ feature.enabled ? 'Ativa' : 'Inativa' }}
+      </div>
+      <div class="feature-actions">
+        <button class="action-btn edit-btn" (click)="openEditModal(feature)">
+          <i class="fas fa-edit"></i> Editar
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteFeature(feature.id)">
+          <i class="fas fa-trash"></i> Excluir
+        </button>
+      </div>
+    </div>
+  } @empty {
+    <div class="no-logs" style="grid-column: 1 / -1;">
+      <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
+      <p>Nenhuma feature encontrada</p>
+    </div>
+  }
+</div>
+
+@if (showModal()) {
+  <app-feature-modal 
+    [feature]="editingFeature"
+    (close)="closeModal()"
+    (save)="saveFeature($event)"
+  ></app-feature-modal>
+}
