@@ -1,0 +1,29 @@
+<div class="confirm-modal" [class.active]="showModal" (click)="onClose()">
+  <div class="confirm-modal-content" (click)="$event.stopPropagation()">
+    <div class="confirm-modal-header">
+      <div class="confirm-modal-icon">
+        <i [class]="getIconClass()" [style.color]="getIconColor()"></i>
+      </div>
+      <h2 class="confirm-modal-title">{{ config.title }}</h2>
+      <button class="confirm-modal-close" (click)="onCancel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="confirm-modal-body">
+      <p class="confirm-modal-message">{{ config.message }}</p>
+    </div>
+    
+    <div class="confirm-modal-footer">
+      <button class="btn btn-cancel" (click)="onCancel()">
+        {{ config.cancelText }}
+      </button>
+      <button 
+        class="btn btn-confirm" 
+        [class]="getConfirmButtonClass()"
+        (click)="onConfirm()">
+        {{ config.confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

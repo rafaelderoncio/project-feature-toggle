@@ -5,6 +5,8 @@ import { FeatureService } from '../../services/feature.service';
 import { LogService } from '../../services/log.service';
 import { Feature } from '../../models/feature.model';
 import { FeatureModalComponent } from '../../modals/feature-modal/feature-modal.component';
+import { ToastrService } from '../../services/toastr.service';
+import { ConfirmationModalService } from '../../services/confirmation-modal.service';
 
 @Component({
   selector: 'app-home-page',
@@ -14,8 +16,10 @@ import { FeatureModalComponent } from '../../modals/feature-modal/feature-modal.
   styleUrl: './home.page.css'
 })
 export class HomePageComponent {
-  featureService = inject(FeatureService);
-  logService = inject(LogService);
+  private featureService = inject(FeatureService);
+  private logService = inject(LogService);
+  private toastrService = inject(ToastrService);
+  private confirmationModalService = inject(ConfirmationModalService);
 
   features = this.featureService.getFeatures();
   searchQuery = signal('');
@@ -95,9 +99,18 @@ export class HomePageComponent {
 
   deleteFeature(id: string) {
     const feature = this.features().find(f => f.id === id);
-    if (feature && confirm('Tem certeza que deseja excluir esta feature?')) {
-      this.featureService.deleteFeature(id);
-      this.logService.addLog(`Feature ${feature.name} excluída por Rafael`);
+
+    if (feature) {
+      this.confirmationModalService.show({
+        title: 'Deletar Feature',
+        message: `Certeza que deseja excluir a feature '${feature.name}'?`,
+      }).subscribe(confirm => {
+        if (confirm) {
+          this.featureService.deleteFeature(id);
+          this.logService.addLog(`Feature ${feature.name} excluída por Rafael`);
+          this.toastrService.show('Deletar Feature', `Feature ${feature.name} deletada`, 'info')
+        }
+      });
     }
   }
 }

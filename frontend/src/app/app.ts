@@ -7,8 +7,9 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
 import { ToastrComponent } from './components/toastr/toastr.component';
+import { ConfirmationModalComponent } from './modals/confirmation-modal/confirmation-modal.component';
 
-let components = [SidebarComponent, ToastrComponent];
+let components = [SidebarComponent, ToastrComponent, ConfirmationModalComponent];
 let modules = [RouterOutlet, CommonModule, FormsModule]
 
 @Component({

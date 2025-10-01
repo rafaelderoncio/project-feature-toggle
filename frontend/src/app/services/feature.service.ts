@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Feature } from '../models/feature.model';
 import { ToastrService } from './toastr.service';
+import { ConfirmationModalService } from './confirmation-modal.service';
 
 @Injectable({
   providedIn: 'root'
@@ -33,8 +34,6 @@ export class FeatureService {
     }
   ]);
 
-  private toastr = inject(ToastrService);
-
   constructor() { }
 
   getFeatures() {
@@ -48,22 +47,17 @@ export class FeatureService {
     };
     
     this.features.update(features => [...features, newFeature]);
-
-    this.toastr.success('Nova Feature', 'Feature criada com sucesso!');
   }
 
   updateFeature(id: string, feature: Partial<Feature>) {
     this.features.update(features => 
       features.map(f => f.id === id ? { ...f, ...feature } : f)
     );
-
-    this.toastr.success('Editar Feature', 'Feature atualizada com sucesso!');
   }
 
   deleteFeature(id: string) {
-    this.features.update(features => features.filter(f => f.id !== id));
 
-    this.toastr.success('Deletar Feature', 'Feature deletada com sucesso!');
+    this.features.update(features => features.filter(f => f.id !== id));
   }
 
   toggleFeature(id: string) {
@@ -72,7 +66,5 @@ export class FeatureService {
         f.id === id ? { ...f, enabled: !f.enabled } : f
       )
     );
-
-    this.toastr.success('Toggle', 'Feature atualizada com sucesso!');
   }
 }
