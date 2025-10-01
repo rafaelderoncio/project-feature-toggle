@@ -187,6 +187,7 @@
   font-size: 18px;
   font-weight: bold;
   color: var(--text-color);
+  max-width: 80%;
 }
 
 .toggle-label {
@@ -244,6 +245,28 @@ input:checked+.slider:before {
   margin-bottom: 20px;
   font-size: 14px;
 }
+
+.feature-name,
+.feature-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  line-clamp: 1; 
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  word-wrap: break-word;
+  white-space: normal;
+
+  display: box;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 
 .feature-status {
   display: inline-block;

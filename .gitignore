@@ -259,3 +259,5 @@ appsettings*.json
 aspnetapp.crt
 aspnetapp.key
 backend/src/Project.FeatureToggle.Api/appsettings.json
+
+.fake
