@@ -1,0 +1,31 @@
+<div class="logs-controls">
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" [value]="searchQuery()" (input)="onSearchChange($event)" placeholder="Buscar em logs...">
+  </div>
+  
+  <div class="filters">
+    <button class="filter-btn" [class.active]="currentLogFilter() === 'all'" (click)="setLogFilter('all')">Todos</button>
+    <button class="filter-btn" [class.active]="currentLogFilter() === 'today'" (click)="setLogFilter('today')">Hoje</button>
+    <button class="filter-btn" [class.active]="currentLogFilter() === 'week'" (click)="setLogFilter('week')">Esta semana</button>
+  </div>
+</div>
+
+<div class="logs-container">
+  @for (log of filteredLogs; track log.id) {
+    <div class="log-item">
+      <div class="log-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <div class="log-content">
+        <div class="log-text">{{ log.message }}</div>
+        <div class="log-time">{{ formatTime(log.timestamp) }}</div>
+      </div>
+    </div>
+  } @empty {
+    <div class="no-logs">
+      <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
+      <p>Nenhum log encontrado</p>
+    </div>
+  }
+</div>
