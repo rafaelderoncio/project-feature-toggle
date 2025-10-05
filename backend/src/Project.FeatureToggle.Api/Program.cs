@@ -19,7 +19,19 @@ builder.Services.AddControllers();
 
 builder.Services.AddSwagger(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()    // permite todas as origens
+              .AllowAnyHeader()    // permite qualquer header
+              .AllowAnyMethod();   // permite qualquer método HTTP (GET, POST, etc.)
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 

@@ -14,4 +14,5 @@ public interface IFeatureRepository
     Task<FeatureModel> UpdateFeature(FeatureModel model);
     Task<FeatureModel> UpdateFeature(Guid id, Expression<Func<FeatureModel, object>> field, object value);
     Task<FeatureModel> DeleteFeature(Guid id);
+    Task<(int, int, int)> GetFeatureStatus();
 }

@@ -6,7 +6,7 @@ namespace Project.FeatureToggle.Core.Services.Interfaces;
 public interface IFeatureManagerService
 {
     public Task<FeatureResponse[]> GetFeatures();
-    public Task<PaginationResponse<FeatureResponse>> GetPagedFeatures(PaginationRequest request);
+    public Task<PaginationResponse<FeatureResponse>> GetFeaturesPaged(PaginationRequest request);
     public Task<FeatureResponse> GetFeature(Guid id);
     public Task<FeatureResponse> CreateFeature(FeatureRequest request);
     public Task<FeatureResponse> UpdateFeature(Guid id, FeatureRequest request);

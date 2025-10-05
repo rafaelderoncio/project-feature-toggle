@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IFeatureManagerService, FeatureManagerService>();
         services.AddSingleton<IFeatureToggleService, FeatureToggleService>();
+        services.AddSingleton<IFeatureDashboardService, FeatureDashboardService>();
         services.AddSingleton<ICacheService, CacheService>();
         return services;
     }

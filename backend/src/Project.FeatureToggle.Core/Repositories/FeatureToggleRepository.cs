@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Project.FeatureToggle.Core.Configurations.Settings;
 using Project.FeatureToggle.Core.Models;
@@ -28,7 +29,7 @@ public sealed class FeatureRepository : IFeatureRepository
         // remove in production
         // InsertSeedData().GetAwaiter().GetResult();
     }
-    
+
     public async Task<FeatureModel> GetFeature(Guid id)
     {
         var filter = Builders<FeatureModel>.Filter.Eq(x => x.Id, id);
@@ -64,7 +65,7 @@ public sealed class FeatureRepository : IFeatureRepository
             .Skip((page - 1) * quantity)
             .Limit(quantity)
             .ToListAsync();
-        
+
         return [.. result];
     }
 
@@ -244,7 +245,411 @@ public sealed class FeatureRepository : IFeatureRepository
                     Active = false,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "rate-limiting",
+                    Name = "Rate Limiting",
+                    Description = "Limit the number of API requests per user.",
+                    Tags = new[] { "api", "security", "performance" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "data-encryption",
+                    Name = "Data Encryption",
+                    Description = "Encrypt sensitive user data at rest and in transit.",
+                    Tags = new[] { "security", "compliance" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "role-based-access",
+                    Name = "Role-Based Access Control",
+                    Description = "Manage access permissions based on user roles.",
+                    Tags = new[] { "auth", "security" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "email-verification",
+                    Name = "Email Verification",
+                    Description = "Require email verification during sign-up.",
+                    Tags = new[] { "auth", "user" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "webhooks",
+                    Name = "Webhooks",
+                    Description = "Enable outbound webhooks for integrations.",
+                    Tags = new[] { "api", "integration" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "search-optimization",
+                    Name = "Search Optimization",
+                    Description = "Enhance the speed and relevance of search results.",
+                    Tags = new[] { "search", "performance" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "file-upload",
+                    Name = "File Upload",
+                    Description = "Allow users to upload and manage files securely.",
+                    Tags = new[] { "storage", "ui" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "report-builder",
+                    Name = "Custom Report Builder",
+                    Description = "Enable users to build custom reports with filters.",
+                    Tags = new[] { "report", "analytics" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "multi-language",
+                    Name = "Multi-Language Support",
+                    Description = "Provide support for multiple languages in the UI.",
+                    Tags = new[] { "ui", "i18n" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "session-timeout",
+                    Name = "Session Timeout",
+                    Description = "Automatically log out inactive users after a set period.",
+                    Tags = new[] { "security", "auth" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "ab-testing",
+                    Name = "A/B Testing",
+                    Description = "Run experiments to test feature performance.",
+                    Tags = new[] { "testing", "ui", "analytics" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "live-chat-support",
+                    Name = "Live Chat Support",
+                    Description = "Provide real-time support through live chat.",
+                    Tags = new[] { "support", "ui" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "usage-analytics",
+                    Name = "Usage Analytics",
+                    Description = "Track and analyze user activity in the platform.",
+                    Tags = new[] { "analytics", "insights" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "captcha-login",
+                    Name = "Captcha on Login",
+                    Description = "Add CAPTCHA verification to prevent bot logins.",
+                    Tags = new[] { "security", "auth" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "mobile-push-notifications",
+                    Name = "Mobile Push Notifications",
+                    Description = "Send push notifications to mobile app users.",
+                    Tags = new[] { "notifications", "mobile" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "offline-mode",
+                    Name = "Offline Mode",
+                    Description = "Allow app to work with limited features while offline.",
+                    Tags = new[] { "mobile", "performance" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "biometric-login",
+                    Name = "Biometric Login",
+                    Description = "Allow login using fingerprint or face recognition.",
+                    Tags = new[] { "auth", "security", "mobile" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "custom-themes",
+                    Name = "Custom Themes",
+                    Description = "Enable users to create and apply their own color themes.",
+                    Tags = new[] { "ui", "theme", "customization" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "drag-drop-dashboard",
+                    Name = "Drag & Drop Dashboard",
+                    Description = "Allow users to customize dashboards via drag and drop.",
+                    Tags = new[] { "ui", "dashboard", "customization" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "auto-backup",
+                    Name = "Automatic Backups",
+                    Description = "Schedule automatic backups of all data.",
+                    Tags = new[] { "storage", "security", "performance" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "single-sign-on",
+                    Name = "Single Sign-On (SSO)",
+                    Description = "Enable users to log in with external identity providers (e.g., Google, Azure AD).",
+                    Tags = new[] { "auth", "security", "integration" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "custom-webhooks",
+                    Name = "Custom Webhooks",
+                    Description = "Allow users to define custom webhook triggers.",
+                    Tags = new[] { "api", "integration", "automation" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "auto-scaling",
+                    Name = "Auto Scaling",
+                    Description = "Automatically scale resources based on usage demand.",
+                    Tags = new[] { "performance", "cloud" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "geo-location",
+                    Name = "Geo-Location Services",
+                    Description = "Enable location-based personalization and analytics.",
+                    Tags = new[] { "mobile", "analytics", "personalization" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "video-tutorials",
+                    Name = "Video Tutorials",
+                    Description = "Provide integrated onboarding video tutorials.",
+                    Tags = new[] { "user", "onboarding", "ui" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "smart-search",
+                    Name = "Smart Search",
+                    Description = "Use AI to improve search accuracy and suggestions.",
+                    Tags = new[] { "search", "ai", "performance" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "multi-factor-approval",
+                    Name = "Multi-Factor Approval",
+                    Description = "Require multiple approvers for sensitive actions.",
+                    Tags = new[] { "security", "workflow" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "team-collaboration",
+                    Name = "Team Collaboration",
+                    Description = "Allow teams to collaborate in real time on shared projects.",
+                    Tags = new[] { "collaboration", "ui", "productivity" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "scheduled-messages",
+                    Name = "Scheduled Messages",
+                    Description = "Allow users to schedule messages or notifications.",
+                    Tags = new[] { "user", "notifications", "automation" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "advanced-reporting",
+                    Name = "Advanced Reporting",
+                    Description = "Provide deeper data insights with advanced charts.",
+                    Tags = new[] { "analytics", "report", "ui" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "fraud-detection",
+                    Name = "Fraud Detection",
+                    Description = "Detect unusual or fraudulent user activities.",
+                    Tags = new[] { "security", "ai", "compliance" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "voice-commands",
+                    Name = "Voice Commands",
+                    Description = "Allow voice-activated commands for navigation.",
+                    Tags = new[] { "ui", "accessibility", "mobile" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "custom-alerts",
+                    Name = "Custom Alerts",
+                    Description = "Let users configure their own alerts and triggers.",
+                    Tags = new[] { "user", "notifications", "automation" },
+                    Active = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new FeatureModel
+                {
+                    Id = Guid.NewGuid(),
+                    Feature = "incident-management",
+                    Name = "Incident Management",
+                    Description = "Centralize reporting and tracking of incidents.",
+                    Tags = new[] { "operations", "security", "workflow" },
+                    Active = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
                 }
-            });
+        });
+    }
+
+    public async Task<(int, int, int)> GetFeatureStatus()
+    {
+        var pipeline = new[]
+        {
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", "$active" },
+                { "count", new BsonDocument("$sum", 1) }
+            })
+        };
+
+        var results = await _collection.Aggregate<BsonDocument>(pipeline).ToListAsync();
+
+        int total = 0, active = 0, inactive = 0;
+
+        foreach (var result in results)
+        {
+            bool isActive = result["_id"].AsBoolean;
+            int count = result["count"].AsInt32;
+
+            total += count;
+            if (isActive)
+                active = count;
+            else
+                inactive = count;
+        }
+
+        return (total, active, inactive);
     }
 }
