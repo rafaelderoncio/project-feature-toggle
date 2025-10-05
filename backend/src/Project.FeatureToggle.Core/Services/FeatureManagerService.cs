@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Project.FeatureToggle.Core.Arguments;
 using Project.FeatureToggle.Core.Exceptions;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
 using Project.FeatureToggle.Core.Services.Interfaces;
@@ -138,30 +139,35 @@ public sealed class FeatureManagerService(IFeatureRepository repository, ILogger
         }
     }
 
-    public async Task<PaginationResponse<FeatureResponse>> GetFeaturesPaged(PaginationRequest request)
+    public async Task<PaginationResponse<FeatureResponse>> GetFeaturesPaged(FeatureQueryRequest request)
     {
         try
         {
             logger.LogInformation("Starts GetPagedFeatures with request: {0}", JsonSerializer.Serialize(request));
 
-            var features = await repository.GetFeatures(
-                onlyActive: request.OnlyActive,
-                quantity: request.Quantity,
-                page: request.Page);
+            var argument = new FeatureArgument
+            {
+                Filter = request.Filter,
+                Page = request.Page,
+                Quantity = request.Quantity,
+                Search = request.Search
+            };
 
-            var totalRecords = await repository.GetTotalFeatures(request.OnlyActive);
+            var features = await repository.GetFeatures(argument);
+
+            var totalRecords = await repository.GetTotalFeatures(argument);
 
             var totalPages = (int)Math.Ceiling(totalRecords / (double)request.Quantity);
 
             var responses = features.Select(feature => new FeatureResponse
-            {
-                Id = feature.Id.ToString(),
-                Name = feature.Name,
-                Description = feature.Description,
-                Feature = feature.Feature,
-                Tags = feature.Tags,
-                Active = feature.Active
-            }
+                {
+                    Id = feature.Id.ToString(),
+                    Name = feature.Name,
+                    Description = feature.Description,
+                    Feature = feature.Feature,
+                    Tags = feature.Tags,
+                    Active = feature.Active
+                }
             );
 
             return new PaginationResponse<FeatureResponse>

@@ -15,7 +15,7 @@ public static class HostBuilderExtensions
             ?? throw new InvalidOperationException("ElasticsearchSettings has not configured!");
 
         Log.Logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
+            // .Enrich.FromLogContext()
             .WriteTo.Console()
             .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(settings.Endpoint))
             {

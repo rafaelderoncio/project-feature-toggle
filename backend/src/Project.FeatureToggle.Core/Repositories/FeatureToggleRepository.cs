@@ -2,9 +2,12 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Misc;
+using Project.FeatureToggle.Core.Arguments;
 using Project.FeatureToggle.Core.Configurations.Settings;
 using Project.FeatureToggle.Core.Models;
 using Project.FeatureToggle.Core.Repositories.Interfaces;
+using Project.FeatureToggle.Domain.Constants;
 
 namespace Project.FeatureToggle.Core.Repositories;
 
@@ -54,11 +57,27 @@ public sealed class FeatureRepository : IFeatureRepository
         return [.. result];
     }
 
-    public async Task<FeatureModel[]> GetFeatures(bool onlyActive, int quantity, int page)
+    public async Task<FeatureModel[]> GetFeatures(FeatureArgument argument)
     {
-        var filter = onlyActive ?
-            Builders<FeatureModel>.Filter.Eq(x => x.Active, true) :
-            Builders<FeatureModel>.Filter.Empty;
+        var filter = Builders<FeatureModel>.Filter.Empty;
+
+        if (argument.Filter == FeatureFilter.ACTIVE)
+        {
+            filter = Builders<FeatureModel>.Filter.Eq(x => x.Active, true);
+        }
+        else if (argument.Filter == FeatureFilter.INACTIVE)
+        {
+            filter = Builders<FeatureModel>.Filter.Eq(x => x.Active, false);
+        }
+
+        if (!string.IsNullOrWhiteSpace(argument.Search))
+        {
+            var searchFilter = Builders<FeatureModel>.Filter.Regex(x => x.Name, new BsonRegularExpression(argument.Search, "i"));
+            filter = Builders<FeatureModel>.Filter.And(filter, searchFilter);
+        }
+
+        var page = argument.Page > 0 ? argument.Page : 1;
+        var quantity = argument.Quantity > 0 ? argument.Quantity : 10;
 
         var result = await _collection
             .Find(filter)
@@ -66,14 +85,27 @@ public sealed class FeatureRepository : IFeatureRepository
             .Limit(quantity)
             .ToListAsync();
 
-        return [.. result];
+        return result.ToArray();
     }
 
-    public async Task<long> GetTotalFeatures(bool onlyActive)
+    public async Task<long> GetTotalFeatures(FeatureArgument argument)
     {
-        var filter = onlyActive ?
-            Builders<FeatureModel>.Filter.Eq(x => x.Active, true) :
-            Builders<FeatureModel>.Filter.Empty;
+        var filter = Builders<FeatureModel>.Filter.Empty;
+
+        if (argument.Filter == FeatureFilter.ACTIVE)
+        {
+            filter = Builders<FeatureModel>.Filter.Eq(x => x.Active, true);
+        }
+        else if (argument.Filter == FeatureFilter.INACTIVE)
+        {
+            filter = Builders<FeatureModel>.Filter.Eq(x => x.Active, false);
+        }
+
+        if (!string.IsNullOrWhiteSpace(argument.Search))
+        {
+            var searchFilter = Builders<FeatureModel>.Filter.Regex(x => x.Name, new BsonRegularExpression(argument.Search, "i"));
+            filter = Builders<FeatureModel>.Filter.And(filter, searchFilter);
+        }
 
         var result = await _collection.CountDocumentsAsync(filter);
 

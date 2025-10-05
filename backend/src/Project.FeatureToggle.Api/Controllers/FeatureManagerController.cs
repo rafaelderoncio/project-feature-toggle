@@ -12,7 +12,7 @@ public class FeatureManagerController(IFeatureManagerService featureToggleServic
         => Ok(await featureToggleService.GetFeature(id));
 
     [HttpGet]
-    public async Task<IActionResult> GetFeatureToggle([FromQuery] PaginationRequest request)
+    public async Task<IActionResult> GetFeatureToggle([FromQuery] FeatureQueryRequest request)
         => Ok(await featureToggleService.GetFeaturesPaged(request));
 
     [HttpPost]
