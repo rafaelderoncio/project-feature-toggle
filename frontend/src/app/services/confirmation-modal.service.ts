@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { ConfirmationModal } from '../models/confirmation.model';
+import { ConfirmationConfigModal } from '../models/confirmation-config.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfirmationModalService {
   private confirmSubject = new Subject<boolean>();
-  private modalConfigSubject = new Subject<ConfirmationModal>();
+  private modalConfigSubject = new Subject<ConfirmationConfigModal>();
   private showModalSubject = new Subject<boolean>();
 
-  getModalConfig(): Observable<ConfirmationModal> {
+  getModalConfig(): Observable<ConfirmationConfigModal> {
     return this.modalConfigSubject.asObservable();
   }
 
@@ -22,7 +22,7 @@ export class ConfirmationModalService {
     return this.confirmSubject.asObservable();
   }
 
-  show(config: ConfirmationModal): Observable<boolean> {
+  show(config: ConfirmationConfigModal): Observable<boolean> {
     this.modalConfigSubject.next(config);
     this.showModalSubject.next(true);
     

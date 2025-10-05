@@ -18,9 +18,9 @@
       </div>
       <div class="form-group">
         <label for="feature-status">Status Inicial</label>
-        <select id="feature-status" [(ngModel)]="enabled" name="enabled">
-          <option [value]="true">Ativa</option>
-          <option [value]="false">Inativa</option>
+        <select id="feature-status" [(ngModel)]="active" name="enabled">
+          <option [ngValue]="true">Ativa</option>
+          <option [ngValue]="false">Inativa</option>
         </select>
       </div>
       <div class="form-actions">

@@ -2,7 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ConfirmationModalService } from '../../services/confirmation-modal.service';
-import { ConfirmationModal } from '../../models/confirmation.model';
+import { ConfirmationConfigModal } from '../../models/confirmation-config.model';
 
 @Component({
   selector: 'app-confirm-modal',
@@ -16,7 +16,7 @@ export class ConfirmationModalComponent implements OnInit, OnDestroy {
   
   showModal = false;
 
-  config: ConfirmationModal = {
+  config: ConfirmationConfigModal = {
     title: 'Confirmação',
     message: 'Tem certeza que deseja realizar esta ação?',
     confirmText: 'Sim',

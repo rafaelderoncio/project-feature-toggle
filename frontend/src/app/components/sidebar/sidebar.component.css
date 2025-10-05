@@ -4,7 +4,10 @@
   color: var(--sidebar-text);
   padding: 20px 0;
   flex-shrink: 0;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 100%;
 }
 
 .sidebar-header {
@@ -51,20 +54,20 @@
     padding: 10px;
     height: auto;
   }
-  
+
   .nav-list {
     display: flex;
     overflow-x: auto;
     padding-bottom: 10px;
   }
-  
+
   .nav-item {
     border-left: none;
     border-bottom: 4px solid transparent;
     padding: 10px 15px;
     white-space: nowrap;
   }
-  
+
   .nav-item.active {
     border-left: none;
     border-bottom-color: var(--primary-color);

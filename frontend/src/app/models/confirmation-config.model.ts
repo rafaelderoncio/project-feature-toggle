@@ -1,4 +1,4 @@
-export interface ConfirmationModal {
+export interface ConfirmationConfigModal {
   title: string;
   message: string;
   confirmText?: string;

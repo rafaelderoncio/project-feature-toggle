@@ -6,7 +6,6 @@ import { ToastrModel } from '../models/toastr.model';
 })
 export class ToastrService {
   private toasts = signal<ToastrModel[]>([]);
-  private defaultPosition: string = 'top-right';
 
   getToasts() {
     return this.toasts.asReadonly();
@@ -25,9 +24,7 @@ export class ToastrService {
     this.toasts.update(toasts => [...toasts, newToast]);
 
     if (duration > 0) {
-      setTimeout(() => {
-        this.remove(newToast.id);
-      }, duration);
+      setTimeout(() => { this.remove(newToast.id); }, duration);
     }
 
     return newToast.id;

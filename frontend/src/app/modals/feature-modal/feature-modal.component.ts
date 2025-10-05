@@ -15,29 +15,33 @@ export class FeatureModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<Feature>();
 
-  name = '';
-  description = '';
-  enabled = true;
+  name: string = '';
+  description: string = '';
+  active: boolean = true;
 
   ngOnInit() {
     if (this.feature) {
       this.name = this.feature.name;
       this.description = this.feature.description;
-      this.enabled = this.feature.enabled;
+      this.active = this.feature.active;
     }
   }
 
   onSave() {
-    if (!this.name.trim() || !this.description.trim()) return;
+    if (!this.name.trim() || !this.description.trim()) {
+      return;
+    }
 
-    const featureData: Feature = {
-      id: this.feature?.id || Date.now().toString(),
+    const feature: Feature = {
+      id: this.feature?.id || '',
       name: this.name,
       description: this.description,
-      enabled: this.enabled
+      active: this.active === true || this.active,
+      tags: [],
+      feature: ''
     };
 
-    this.save.emit(featureData);
+    this.save.emit(feature);
   }
 
   onClose() {

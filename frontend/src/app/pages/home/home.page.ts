@@ -7,6 +7,8 @@ import { Feature } from '../../models/feature.model';
 import { FeatureModalComponent } from '../../modals/feature-modal/feature-modal.component';
 import { ToastrService } from '../../services/toastr.service';
 import { ConfirmationModalService } from '../../services/confirmation-modal.service';
+import { Dashboard } from '../../models/dashboard.model';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-home-page',
@@ -16,101 +18,188 @@ import { ConfirmationModalService } from '../../services/confirmation-modal.serv
   styleUrl: './home.page.css'
 })
 export class HomePageComponent {
-  private featureService = inject(FeatureService);
-  private logService = inject(LogService);
-  private toastrService = inject(ToastrService);
-  private confirmationModalService = inject(ConfirmationModalService);
 
-  features = this.featureService.getFeatures();
+  // services
+  private featureService = inject(FeatureService);
+  private confirmationModalService = inject(ConfirmationModalService);
+  private toastrService = inject(ToastrService);
+  private logService = inject(LogService);
+
+  // properties
+  features = signal<Feature[]>([]);
+  dashboard = signal<Dashboard>({ totalActives: 0, totalInactives: 0, totalFeatures: 0 });
+  page = signal(1);
+  totalPages = signal(1);
   searchQuery = signal('');
   currentFilter = signal<'all' | 'active' | 'inactive'>('all');
   showModal = signal(false);
   editingFeature: Feature | null = null;
 
-  get activeCount() {
-    return this.features().filter(f => f.enabled).length;
+  ngOnInit() {
+    this.loadPage(1);
   }
 
-  get inactiveCount() {
-    return this.features().filter(f => !f.enabled).length;
-  }
+  public loadPage(page: number) {
 
-  get totalCount() {
-    return this.features().length;
+    this.featureService.getFeatureDashboard()
+    .pipe(first())
+    .subscribe({
+      next: (resp => {
+        this.dashboard.set(resp);
+        this.featureService.getFeatures(page).subscribe({
+          next: (resp) => {
+            this.features.set(resp.items);
+            this.page.set(resp.page);
+            this.totalPages.set(resp.totalPages);
+          }
+        });
+      })
+    });
   }
 
   get filteredFeatures() {
     return this.features().filter(feature => {
-      const matchesSearch = feature.name.toLowerCase().includes(this.searchQuery().toLowerCase()) || 
-                           feature.description.toLowerCase().includes(this.searchQuery().toLowerCase());
-      
+      const matchesSearch = feature.name.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
+        feature.description.toLowerCase().includes(this.searchQuery().toLowerCase());
+
       let matchesFilter = true;
       if (this.currentFilter() === 'active') {
-        matchesFilter = feature.enabled;
+        matchesFilter = feature.active;
       } else if (this.currentFilter() === 'inactive') {
-        matchesFilter = !feature.enabled;
+        matchesFilter = !feature.active;
       }
-      
+
       return matchesSearch && matchesFilter;
     });
   }
 
-  onSearchChange(event: Event) {
+  public onSearchChange(event: Event) {
     this.searchQuery.set((event.target as HTMLInputElement).value.toLowerCase());
   }
 
-  setFilter(filter: 'all' | 'active' | 'inactive') {
+  public changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= this.totalPages()) {
+      this.loadPage(newPage);
+    }
+  }
+
+  public setFilter(filter: 'all' | 'active' | 'inactive') {
     this.currentFilter.set(filter);
   }
 
-  openAddModal() {
+  public openAddModal() {
     this.editingFeature = null;
     this.showModal.set(true);
   }
 
-  openEditModal(feature: Feature) {
+  public openEditModal(feature: Feature) {
     this.editingFeature = feature;
     this.showModal.set(true);
   }
 
-  closeModal() {
+  public closeModal() {
     this.showModal.set(false);
     this.editingFeature = null;
   }
 
-  saveFeature(feature: Feature) {
-    if (this.editingFeature) {
-      this.featureService.updateFeature(feature.id, feature);
-      this.logService.addLog(`Feature ${feature.name} atualizada por Rafael`);
-    } else {
-      this.featureService.addFeature(feature);
-      this.logService.addLog(`Feature ${feature.name} adicionada por Rafael`);
-    }
-    this.closeModal();
-  }
-
-  toggleFeature(id: string) {
-    this.featureService.toggleFeature(id);
-    const feature = this.features().find(f => f.id === id);
+  public saveFeature(feature: Feature) {
     if (feature) {
-      this.logService.addLog(`Feature ${feature.name} ${feature.enabled ? 'ativada' : 'desativada'} por Rafael`);
+      this.featureService.saveFeature(feature)
+      .pipe(first())
+      .subscribe({
+        next: (() => {
+          this.closeModal();
+          this.toastrService.success('Toggle', `Feature ${feature.name} criada`);
+          // TODO: log
+          this.loadPage(this.page())
+        }),
+        error: (() => {
+          this.closeModal();
+          this.toastrService.error('Toggle', `Erro ao criar feature ${feature.name}`);
+          // TODO: log
+          this.loadPage(this.page())
+        })
+      });
     }
   }
 
-  deleteFeature(id: string) {
+  public updateFeature(feature: Feature) {
+    if (feature) {
+      this.featureService.updateFeature(feature.id, feature)
+      .pipe(first())
+      .subscribe({
+        next: (resp => {
+          this.closeModal();
+          this.toastrService.success('Toggle', `Feature ${feature.name} atualizada`);
+          // TODO: log
+          this.loadPage(this.page())
+        }),
+        error: (() => {
+          this.closeModal();
+          this.toastrService.error('Toggle', `Erro ao atualizar da feature ${feature.name}`);
+          // TODO: log
+          this.loadPage(this.page())
+        })
+      });
+    }
+  }
+
+  public deleteFeature(id: string) {
+
     const feature = this.features().find(f => f.id === id);
 
     if (feature) {
       this.confirmationModalService.show({
         title: 'Deletar Feature',
-        message: `Certeza que deseja excluir a feature '${feature.name}'?`,
-      }).subscribe(confirm => {
+        message: `Certeza que deseja excluir a feature ${feature.name}?`,
+      })
+      .pipe(first())
+      .subscribe(confirm => {
         if (confirm) {
-          this.featureService.deleteFeature(id);
-          this.logService.addLog(`Feature ${feature.name} excluída por Rafael`);
-          this.toastrService.show('Deletar Feature', `Feature ${feature.name} deletada`, 'info')
+          this.featureService.deleteFeature(feature.id).subscribe({
+            next: (() => {
+              this.toastrService.success('Deletar Feature', `Feature ${feature.name} deletada`);
+              // TODO: log
+              this.refresh()
+            }),
+            error: (() => {
+              this.toastrService.error('Deletar Feature', `Erro ao deletar feature ${feature.name}`);
+              // TODO: log
+              this.refresh()
+            })
+          });
         }
       });
+    }
+  }
+
+  public toggleFeature(id: string) {
+
+    const feature = this.features().find(f => f.id === id);
+
+    if (feature) {
+      this.featureService.toggleFeature(feature.feature)
+      .pipe(first())
+      .subscribe({
+        next: (() => {
+          this.toastrService.success('Toggle', `Feature ${feature.name} ${!feature.active ? 'ativada' : 'desativada'}`);
+          // TODO: log
+          this.loadPage(this.page())
+        }),
+        error: (() => {
+          this.toastrService.error('Toggle', `Erro ao alterar estado da feature ${feature.name}`);
+          // TODO: log
+          this.loadPage(this.page())
+        })
+      });
+    }
+  }
+
+  private refresh() {
+    if (this.page() > 1 && this.features().length == 1) {
+      this.loadPage(this.page() - 1);
+    } else {
+      this.loadPage(this.page());
     }
   }
 }

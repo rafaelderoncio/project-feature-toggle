@@ -1,6 +1,8 @@
 export interface Feature {
   id: string;
+  feature: string;
   name: string;
   description: string;
-  enabled: boolean;
+  tags: string[];
+  active: boolean;
 }
