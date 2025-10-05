@@ -19,9 +19,10 @@ export class FeatureService {
     return this.http.get<Dashboard>(endpoint);
   }
 
-  getFeatures(page: number = 1, quantity: number = 6) {
-    const endpoint = `${environment.featureManagerEndpoint}?page=${page}&quantity=${quantity}`;
-    return this.http.get<Pagination>(endpoint);
+  getFeatures(page: number, quantity: number = 6, search: string = '', filter: string = 'all') {
+    const endpoint = environment.featureManagerEndpoint;
+    const params = { page, quantity, search, filter };
+    return this.http.get<Pagination>(endpoint, { params });
   }
 
   saveFeature(feature: Omit<Feature, 'id'>) {

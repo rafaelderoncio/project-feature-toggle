@@ -42,27 +42,28 @@ export class HomePageComponent {
   public loadPage(page: number) {
 
     this.featureService.getFeatureDashboard()
-    .pipe(first())
-    .subscribe({
-      next: (resp => {
-        this.dashboard.set(resp);
-        this.featureService.getFeatures(page).subscribe({
-          next: (resp) => {
-            this.features.set(resp.items);
-            this.page.set(resp.page);
-            this.totalPages.set(resp.totalPages);
-          }
-        });
-      })
-    });
+      .pipe(first())
+      .subscribe({
+        next: (resp => {
+          this.dashboard.set(resp);
+          this.featureService.getFeatures(page, undefined, this.searchQuery(), this.currentFilter())
+          .subscribe({
+            next: (resp) => {
+              this.features.set(resp.items);
+              this.page.set(resp.page);
+              this.totalPages.set(resp.totalPages);
+            }
+          });
+        })
+      });
   }
 
   get filteredFeatures() {
     return this.features().filter(feature => {
-      const matchesSearch = feature.name.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
-        feature.description.toLowerCase().includes(this.searchQuery().toLowerCase());
+      const matchesSearch = feature.name.toLowerCase().includes(this.searchQuery().toLowerCase());
 
       let matchesFilter = true;
+
       if (this.currentFilter() === 'active') {
         matchesFilter = feature.active;
       } else if (this.currentFilter() === 'inactive') {
@@ -73,8 +74,17 @@ export class HomePageComponent {
     });
   }
 
-  public onSearchChange(event: Event) {
-    this.searchQuery.set((event.target as HTMLInputElement).value.toLowerCase());
+  public onSearchChange(event: Event) {    
+    const search = (event.target as HTMLInputElement).value.toLowerCase();
+    this.searchQuery.set(search);
+    this.featureService.getFeatures(this.page(), undefined, search, this.currentFilter())
+      .subscribe({
+        next: (resp) => {
+          this.features.set(resp.items);
+          this.page.set(resp.page);
+          this.totalPages.set(resp.totalPages);
+        }
+      });
   }
 
   public changePage(newPage: number) {
@@ -85,6 +95,14 @@ export class HomePageComponent {
 
   public setFilter(filter: 'all' | 'active' | 'inactive') {
     this.currentFilter.set(filter);
+    this.featureService.getFeatures(this.page(), undefined, undefined, this.currentFilter())
+      .subscribe({
+        next: (resp) => {
+          this.features.set(resp.items);
+          this.page.set(resp.page);
+          this.totalPages.set(resp.totalPages);
+        }
+      });
   }
 
   public openAddModal() {
@@ -105,42 +123,42 @@ export class HomePageComponent {
   public saveFeature(feature: Feature) {
     if (feature) {
       this.featureService.saveFeature(feature)
-      .pipe(first())
-      .subscribe({
-        next: (() => {
-          this.closeModal();
-          this.toastrService.success('Toggle', `Feature ${feature.name} criada`);
-          // TODO: log
-          this.loadPage(this.page())
-        }),
-        error: (() => {
-          this.closeModal();
-          this.toastrService.error('Toggle', `Erro ao criar feature ${feature.name}`);
-          // TODO: log
-          this.loadPage(this.page())
-        })
-      });
+        .pipe(first())
+        .subscribe({
+          next: (() => {
+            this.closeModal();
+            this.toastrService.success('Toggle', `Feature ${feature.name} criada`);
+            // TODO: log
+            this.loadPage(this.page())
+          }),
+          error: (() => {
+            this.closeModal();
+            this.toastrService.error('Toggle', `Erro ao criar feature ${feature.name}`);
+            // TODO: log
+            this.loadPage(this.page())
+          })
+        });
     }
   }
 
   public updateFeature(feature: Feature) {
     if (feature) {
       this.featureService.updateFeature(feature.id, feature)
-      .pipe(first())
-      .subscribe({
-        next: (resp => {
-          this.closeModal();
-          this.toastrService.success('Toggle', `Feature ${feature.name} atualizada`);
-          // TODO: log
-          this.loadPage(this.page())
-        }),
-        error: (() => {
-          this.closeModal();
-          this.toastrService.error('Toggle', `Erro ao atualizar da feature ${feature.name}`);
-          // TODO: log
-          this.loadPage(this.page())
-        })
-      });
+        .pipe(first())
+        .subscribe({
+          next: (resp => {
+            this.closeModal();
+            this.toastrService.success('Toggle', `Feature ${feature.name} atualizada`);
+            // TODO: log
+            this.loadPage(this.page())
+          }),
+          error: (() => {
+            this.closeModal();
+            this.toastrService.error('Toggle', `Erro ao atualizar da feature ${feature.name}`);
+            // TODO: log
+            this.loadPage(this.page())
+          })
+        });
     }
   }
 
@@ -153,23 +171,23 @@ export class HomePageComponent {
         title: 'Deletar Feature',
         message: `Certeza que deseja excluir a feature ${feature.name}?`,
       })
-      .pipe(first())
-      .subscribe(confirm => {
-        if (confirm) {
-          this.featureService.deleteFeature(feature.id).subscribe({
-            next: (() => {
-              this.toastrService.success('Deletar Feature', `Feature ${feature.name} deletada`);
-              // TODO: log
-              this.refresh()
-            }),
-            error: (() => {
-              this.toastrService.error('Deletar Feature', `Erro ao deletar feature ${feature.name}`);
-              // TODO: log
-              this.refresh()
-            })
-          });
-        }
-      });
+        .pipe(first())
+        .subscribe(confirm => {
+          if (confirm) {
+            this.featureService.deleteFeature(feature.id).subscribe({
+              next: (() => {
+                this.toastrService.success('Deletar Feature', `Feature ${feature.name} deletada`);
+                // TODO: log
+                this.refresh()
+              }),
+              error: (() => {
+                this.toastrService.error('Deletar Feature', `Erro ao deletar feature ${feature.name}`);
+                // TODO: log
+                this.refresh()
+              })
+            });
+          }
+        });
     }
   }
 
@@ -179,19 +197,19 @@ export class HomePageComponent {
 
     if (feature) {
       this.featureService.toggleFeature(feature.feature)
-      .pipe(first())
-      .subscribe({
-        next: (() => {
-          this.toastrService.success('Toggle', `Feature ${feature.name} ${!feature.active ? 'ativada' : 'desativada'}`);
-          // TODO: log
-          this.loadPage(this.page())
-        }),
-        error: (() => {
-          this.toastrService.error('Toggle', `Erro ao alterar estado da feature ${feature.name}`);
-          // TODO: log
-          this.loadPage(this.page())
-        })
-      });
+        .pipe(first())
+        .subscribe({
+          next: (() => {
+            this.toastrService.success('Toggle', `Feature ${feature.name} ${!feature.active ? 'ativada' : 'desativada'}`);
+            // TODO: log
+            this.loadPage(this.page())
+          }),
+          error: (() => {
+            this.toastrService.error('Toggle', `Erro ao alterar estado da feature ${feature.name}`);
+            // TODO: log
+            this.loadPage(this.page())
+          })
+        });
     }
   }
 
