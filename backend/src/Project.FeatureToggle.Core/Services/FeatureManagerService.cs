@@ -139,7 +139,7 @@ public sealed class FeatureManagerService(IFeatureRepository repository, ILogger
         }
     }
 
-    public async Task<PaginationResponse<FeatureResponse>> GetFeaturesPaged(FeatureQueryRequest request)
+    public async Task<PaginationResponse<FeatureResponse>> GetFeatures(FeatureQueryRequest request)
     {
         try
         {
